@@ -32,7 +32,12 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly" {
   role       = aws_iam_role.eks_nodes.name
 }
 
+resource "aws_key_pair" "key12" {
+  key_name   = "harsh_key"
+  public_key = file("~/.ssh/id_rsa.pub")
+}
 
+ 
 
 resource "aws_eks_node_group" "node" {
   cluster_name    = aws_eks_cluster.aws_eks.name
@@ -41,15 +46,23 @@ resource "aws_eks_node_group" "node" {
 
 
   subnet_ids = [
+    
+    
     aws_subnet.privatesubnets.id,
+    aws_subnet.private-eu-west-1b.id
+
   ]
+
 
 
   capacity_type  = "ON_DEMAND"
   instance_types = ["t3.small"]
+   
 
 
-  
+
+
+ 
 
   scaling_config {
     desired_size = 2

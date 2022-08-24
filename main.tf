@@ -21,14 +21,29 @@ resource "aws_internet_gateway" "IGW" { # Creating Internet Gateway
 
 # Create a Public Subnets.
 resource "aws_subnet" "publicsubnets" { # Creating Public Subnets
-  vpc_id     = aws_vpc.Main.id
-  cidr_block = var.public_subnets # CIDR block of public subnets
+  vpc_id            = aws_vpc.Main.id
+  cidr_block        = var.public_subnets # CIDR block of public subnets
+  availability_zone = "eu-west-1a"
 
 
   tags = {
     Name = "Public-subnet"
   }
 
+}
+
+# create a public subnets in 1b.
+resource "aws_subnet" "public-eu-west-1b" {
+  vpc_id                  = aws_vpc.Main.id
+  cidr_block              = "10.0.96.0/19"
+  availability_zone       = "eu-west-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    "Name"                       = "public-eu-west-1b"
+    "kubernetes.io/role/elb"     = "1"
+    "kubernetes.io/cluster/demo" = "owned"
+  }
 }
 
 #Route table for Public Subnet's
@@ -62,6 +77,7 @@ resource "aws_route_table" "PrivateRT" { # Creating RT for Private Subnet
 }
 
 
+
 # Create a Private Subnet                                        
 resource "aws_subnet" "privatesubnets" {
   vpc_id            = aws_vpc.Main.id
@@ -76,6 +92,22 @@ resource "aws_subnet" "privatesubnets" {
   }
 
 }
+
+# create a private subnet in 1b.
+
+resource "aws_subnet" "private-eu-west-1b" {
+  vpc_id            = aws_vpc.Main.id
+  cidr_block        = "10.0.32.0/19"
+  availability_zone = "eu-west-1b"
+
+  tags = {
+    "Name"                            = "private-eu-west-1b"
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/demo"      = "owned"
+  }
+}
+
+
 
 
 
@@ -103,14 +135,24 @@ resource "aws_nat_gateway" "NATgw" {
   depends_on = [aws_internet_gateway.IGW]
 }
 
-resource "aws_route_table_association" "private-us-east-1a" {
+resource "aws_route_table_association" "private-eu-west-1a" {
   subnet_id      = aws_subnet.privatesubnets.id
   route_table_id = aws_route_table.PrivateRT.id
 }
 
 
-resource "aws_route_table_association" "public-us-east-1a" {
+resource "aws_route_table_association" "public-eu-west-1a" {
   subnet_id      = aws_subnet.publicsubnets.id
+  route_table_id = aws_route_table.PublicRT.id
+}
+
+resource "aws_route_table_association" "private-eu-west-1b" {
+  subnet_id      = aws_subnet.private-eu-west-1b.id
+  route_table_id = aws_route_table.PrivateRT.id
+}
+
+resource "aws_route_table_association" "public-eu-west-1b" {
+  subnet_id      = aws_subnet.public-eu-west-1b.id
   route_table_id = aws_route_table.PublicRT.id
 }
 
@@ -131,8 +173,6 @@ terraform {
 
   }
 }
-
-
 
 output "console_output" {
   value = aws_subnet.publicsubnets.id
@@ -175,5 +215,10 @@ output "natgateway_id" {
 output "natgateway_public" {
   value = aws_nat_gateway.NATgw.public_ip
 }
+
+
+
+
+
 
 

@@ -1,5 +1,5 @@
 main_vpc_cidr   = "10.0.0.0/16"
 public_subnets  = "10.0.64.0/19"
 private_subnets = "10.0.0.0/19"
-access_key      = "AKIAQOELGETRZW6ATZOG"
-secret_key      = "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"
+access_key      = "AKIAQOELGETR6O2IO75P"
+secret_key      = "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"
