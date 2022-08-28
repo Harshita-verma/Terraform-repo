@@ -35,7 +35,7 @@ resource "aws_subnet" "publicsubnets" { # Creating Public Subnets
 # create a public subnets in 1b.
 resource "aws_subnet" "public-eu-west-1b" {
   vpc_id                  = aws_vpc.Main.id
-  cidr_block              = "10.0.96.0/19"
+  cidr_block              = var.public_subnets_west
   availability_zone       = "eu-west-1b"
   map_public_ip_on_launch = true
 
@@ -97,7 +97,7 @@ resource "aws_subnet" "privatesubnets" {
 
 resource "aws_subnet" "private-eu-west-1b" {
   vpc_id            = aws_vpc.Main.id
-  cidr_block        = "10.0.32.0/19"
+  cidr_block        = var.private_subnets_west
   availability_zone = "eu-west-1b"
 
   tags = {
